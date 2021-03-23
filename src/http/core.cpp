@@ -1,9 +1,14 @@
-#include <expresscpp/http/server.hpp>
+#include <expresscpp/http/core.hpp>
 
 namespace express {
 	HttpServer::HttpServer(uint16_t port)
-		:m_port(port)
+		:port_(port)
 	{
 		std::cout << "Listening on port " << port << "\n";
+	}
+
+	void HttpServer::listen(int port)
+	{
+
 	}
 }
