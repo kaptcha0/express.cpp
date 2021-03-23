@@ -1,6 +1,7 @@
 #pragma once
 
-#include <asio.hpp>
 #include <iostream>
+#include <asio.hpp>
+#include <memory>
 #include <string>
 

@@ -22,7 +22,7 @@ endif()
 set(library_name "expresscpp")
 add_library(${library_name} STATIC 
 	src/http/core.cpp
-	src/commons/tcp_connection.cpp
+	src/http/http_io.cpp
 	src/http/http_connection.cpp
 )
 
@@ -50,8 +50,12 @@ target_link_directories(${library_name}
 )
 
 ## Samples ##
-add_executable(BasicServer samples/basic_server/server.cpp)
+option(BUILD_SAMPLES "Sample programs" ON)
 
-target_link_libraries(BasicServer expresscpp)
+if(BUILD_SAMPLES)
+	message("-- Building samples")
+	add_executable(BasicServer samples/basic_server/server.cpp)
+	target_link_libraries(BasicServer expresscpp)
+endif()
 
 
