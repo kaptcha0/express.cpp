@@ -18,7 +18,7 @@ namespace express {
 				headers_.insert(std::make_pair(key, value));
 			}
 
-			inline std::string& toString() const
+			inline std::string toString() const
 			{
 				std::string headers;
 
@@ -28,7 +28,7 @@ namespace express {
 				return headers;
 			}
 
-			inline std::vector<std::string>& operator[](std::string key) const
+			inline std::vector<std::string> operator[](std::string key) const
 			{
 				std::vector<std::string> valid;
 				auto range = headers_.equal_range(key);

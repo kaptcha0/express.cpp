@@ -51,6 +51,8 @@ namespace express {
 				
 				if (version_ == HTTP_1_1)
 					return "HTTP/1.1";
+
+				return "";
 			}
 
 			inline operator float()

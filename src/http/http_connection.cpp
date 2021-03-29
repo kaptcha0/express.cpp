@@ -39,7 +39,7 @@ namespace express {
 		void http_connection::writeRequest(response& r)
 		{
 			raw_response res = r.construct();
-			std::string sendData = res.resLine + "\r\n" + static_cast<std::string>(res.headers) + res.body
+			std::string sendData = res.resLine + "\r\n" + static_cast<std::string>(res.headers) + res.body;
 		}
 	}
 }
