@@ -22,7 +22,9 @@ endif()
 set(library_name "expresscpp")
 add_library(${library_name} STATIC 
 	src/http/core.cpp
+	src/http/request.cpp
 	src/http/http_io.cpp
+	src/http/response.cpp
 	src/http/http_connection.cpp
 )
 
@@ -35,9 +37,10 @@ endif()
 target_include_directories(${library_name}
 	PUBLIC
 	include
-	PRIVATE
 	asio/asio/include
 )
+
+target_precompile_headers(${library_name} PUBLIC include/expresscpp/commons/pch.hpp)
 
 target_link_libraries(${library_name}
 	PRIVATE 

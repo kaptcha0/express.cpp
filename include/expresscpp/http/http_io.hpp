@@ -1,4 +1,5 @@
-#pragma once
+#ifndef HTTP_IO_HPP
+#define HTTP_IO_HPP
 
 #include <map>
 #include <string>
@@ -9,7 +10,6 @@ namespace express {
 	namespace http {
 		struct http_io
 		{
-		private:
 		public:
 			static raw_request deserialize(const std::string &);
 
@@ -17,3 +17,5 @@ namespace express {
 		};
 	}
 }
+
+#endif

@@ -1,4 +1,4 @@
-#include <expresscpp/http/core.hpp>
+#include "expresscpp/http/core.hpp"
 
 namespace express {
 	HttpServer::HttpServer(uint16_t port)
@@ -15,7 +15,8 @@ namespace express {
 		{
 			if (!ec)
 			{
-				std::shared_ptr<http::http_connection> conn = std::make_shared<http::http_connection>(&socket_);
+				std::shared_ptr<http::http_connection> conn = std::make_shared<http::http_connection>(std::move(&socket_));
+				conn->start();
 			}
 
 			this->eventLoop(acc);
@@ -31,6 +32,7 @@ namespace express {
 
 			std::cout << "Listening on port " << address_.to_string() << ":" << port_ << "\n";
 
+			// Start listening loop
 			eventLoop(&acceptor);
 
 			io_context_.run();
@@ -38,6 +40,7 @@ namespace express {
 		catch (const std::exception& e)
 		{
 			std::cerr << "Error: " << e.what() << std::endl;
+			throw e;
 		}
 	}
 }

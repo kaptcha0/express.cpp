@@ -1,6 +1,7 @@
-#pragma once
+#ifndef CORE_HPP
+#define CORE_HPP
 
-#include "expresscpp/pch.hpp"
+#include "expresscpp/commons/pch.hpp"
 #include "expresscpp/http/http_connection.hpp"
 
 namespace express {
@@ -31,3 +32,5 @@ namespace express {
 		void listen();
 	};
 }
+
+#endif
