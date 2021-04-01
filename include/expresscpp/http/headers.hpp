@@ -10,12 +10,12 @@ namespace express {
 		struct headers
 		{
 		private:
-			std::multimap<std::string, std::string> headers_;
+			std::map<std::string, std::vector<std::string>> headers_;
 		public:
 
 			inline void set(std::string key, std::string value)
 			{
-				headers_.insert(std::make_pair(key, value));
+				headers_[key].push_back(value);
 			}
 
 			inline std::string toString() const
@@ -23,20 +23,15 @@ namespace express {
 				std::string headers;
 
 				for (auto header : headers_)
-					headers += header.first + ": " + header.second + "\r\n";
+					for (auto value : header.second)
+						headers += header.first + ": " + value + "\r\n";
 
 				return headers;
 			}
 
-			inline std::vector<std::string> operator[](std::string key) const
+			inline std::vector<std::string>& operator[](std::string key)
 			{
-				std::vector<std::string> valid;
-				auto range = headers_.equal_range(key);
-
-				for (auto it = range.first; it != range.second; ++it)
-					valid.push_back(it->second);
-
-				return valid;
+				return headers_[key];
 			}
 		
 			explicit inline operator std::string() const

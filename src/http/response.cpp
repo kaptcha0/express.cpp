@@ -4,14 +4,17 @@ namespace express {
 	namespace http {
 		response::response(version v)
 			:statusCode(status::OK), resVersion(v)
-		{
-			headers.set("Connection", "Close");
-		}
+		{	}
 
 		raw_response response::construct()
 		{
+			std::string data = body.str();
+
+			setHeader("Connection", "close");
+			setHeader("Content-Length", data.length());
+
 			std::string head = static_cast<std::string>(resVersion) + " " + std::to_string(statusCode) + " " + static_cast<std::string>(statusCode);
-			return raw_response{head, headers, body.str()};
+			return raw_response{head, headers, data};
 		}
 
 		void response::status(uint16_t status)
@@ -21,11 +24,17 @@ namespace express {
 
 		void response::setHeader(std::string key, std::string value)
 		{
-			headers[key] = std::vector<std::string>{value};
+			headers[key] = { value };
+		}
+
+		void response::setHeader(std::string key, int value)
+		{
+			setHeader(key, std::to_string(value));
 		}
 
 		void response::send(const std::string data)
 		{
+			setHeader("Content-Type", "text/html");
 			body.str(data);
 		}
 		
@@ -69,16 +78,21 @@ namespace express {
 				return "application/text";
 			};
 
-			headers["Content-Type"][0] = getContentType(&filename);
-
 			std::ifstream readStream(filename);
-			std::string file((std::istreambuf_iterator<char>(readStream)),
-				std::istreambuf_iterator<char>());
 
-			status(status::Accepted);
-			headers["Content-Length"][0] = file.length();
+			if (readStream)
+			{
+				std::string file;
+				readStream >> file;
 
-			body.str(file);
+				status(status::Accepted);
+
+				body.str(file);
+				setHeader("Content-Type", getContentType(&filename));
+				return;
+			}
+
+			throw std::ifstream::failure("File " + filename + "not found");
 		}
 	}
 }

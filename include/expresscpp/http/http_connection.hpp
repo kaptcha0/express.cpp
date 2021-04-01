@@ -1,19 +1,16 @@
 #ifndef HTTP_CONNECTION_HPP
 #define HTTP_CONNECTION_HPP
 
-#include <functional>
+#include <array>
 #include "expresscpp/commons/pch.hpp"
 #include "expresscpp/http/request.hpp"
 #include "expresscpp/http/http_io.hpp"
 #include "expresscpp/http/response.hpp"
 #include "expresscpp/http/raw_parsed.hpp"
 
-// Max read buffer size
-#define MAX_BUF_SIZE 1024
-
 namespace express {
 	namespace http {
-		struct http_connection
+		struct http_connection : public std::enable_shared_from_this<http_connection>
 		{
 		private:
 			// Raw request, after parsing
@@ -23,9 +20,7 @@ namespace express {
 			raw_response res_;
 
 			// Socket to read/write from
-			asio::ip::tcp::socket* socket_;
-
-			char buffer_[MAX_BUF_SIZE] = "";
+			asio::ip::tcp::socket socket_;
 
 			// Raw data from read
 			std::string rawData_;
@@ -37,10 +32,10 @@ namespace express {
 			void processRequest();
 
 			// Sends the request to the client
-			void writeRequest(response&);
+			void writeRequest(request*, response*);
 
 		public:
-			http_connection(asio::ip::tcp::socket *);
+			http_connection(asio::ip::tcp::socket&&);
 
 			// Starts all ops.
 			void start();

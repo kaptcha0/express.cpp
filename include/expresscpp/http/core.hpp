@@ -21,7 +21,7 @@ namespace express {
 		asio::ip::tcp::socket socket_;
 
 		// Handles all connections
-		void eventLoop(asio::ip::tcp::acceptor*);
+		void eventLoop(asio::ip::tcp::acceptor&);
 
 	public:
 		HttpServer(uint16_t);

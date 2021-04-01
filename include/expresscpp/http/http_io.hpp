@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <sstream>
+#include <optional>
 #include "expresscpp/http/raw_parsed.hpp"
 
 namespace express {
@@ -11,7 +12,7 @@ namespace express {
 		struct http_io
 		{
 		public:
-			static raw_request deserialize(const std::string &);
+			static std::optional<raw_request> deserialize(const std::string &);
 
 			static std::string serialize(const raw_response&);
 		};

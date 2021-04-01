@@ -2,20 +2,24 @@
 
 namespace express { 
 	namespace http {
-		raw_request http_io::deserialize(const std::string& data)
+		std::optional<raw_request> http_io::deserialize(const std::string& data)
 		{
 			std::string reqline, body;
 			http::headers headers;
 
+			// Parse request line
+
 			size_t start = 0, end = data.find_first_of("\r\n");
 			
 			if (end == std::string::npos)
-				return raw_request{};
+				return {	};
 
 			reqline = data.substr(start, end).c_str();
 
 			start = end + 2;
 			end = data.length();
+
+			// Parse headers
 
 			std::istringstream iss(data.substr(start, data.length()));
 
@@ -36,12 +40,15 @@ namespace express {
 				headers.set(key, value);
 			}
 
-			start = data.find_first_of("\r\n\r\n");
+			// Get body
+
+			start = data.find("\r\n\r\n");
 
 			if (start == std::string::npos)
-				return raw_request{};
+				return {	};
 
-			body = data.substr(start, end);
+
+			body = data.substr(start + 4, end);
 
 			return raw_request{reqline, headers, body};
 		}

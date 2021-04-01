@@ -13,13 +13,13 @@ namespace express {
 			// Parsing status string
 			const std::string& head = raw->reqLine;
 
-			size_t pathBegin = head.find_first_of(" ");
-			size_t pathEnd = head.find_last_of(" ");
+			size_t pathBegin = head.find(" /");
+			size_t pathEnd = head.find(" HTTP/", pathBegin + 1);
 
 			if (pathBegin == std::string::npos || pathEnd == std::string::npos)
 				return;
 
-			this->path = head.substr(pathBegin + 1, pathEnd);
+			this->path = head.substr(pathBegin + 1, pathEnd - 4);
 
 			// Getting query info
 			size_t queryStart = path.find('?');

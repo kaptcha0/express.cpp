@@ -9,13 +9,15 @@ namespace express {
 		:address_(asio::ip::make_address(addr)), socket_(io_context_), port_(port)
 	{	}
 
-	void HttpServer::eventLoop(asio::ip::tcp::acceptor* acc)
+	void HttpServer::eventLoop(asio::ip::tcp::acceptor& acc)
 	{
-		acc->async_accept(socket_, [&, this](const asio::error_code& ec)
-		{
+		acc.async_accept(socket_, [&, this](const asio::error_code& ec) {
+
+			std::cout << "\nAccept " << ec.value() << ": " << ec.message() << std::endl;
+
 			if (!ec)
 			{
-				std::shared_ptr<http::http_connection> conn = std::make_shared<http::http_connection>(std::move(&socket_));
+				auto conn = std::make_shared<http::http_connection>(std::move(socket_));
 				conn->start();
 			}
 
@@ -25,22 +27,16 @@ namespace express {
 
 	void HttpServer::listen()
 	{
-		try 
-		{
-			// Setup socket
-			asio::ip::tcp::acceptor acceptor{io_context_, {address_, port_}};
+		socket_ = asio::ip::tcp::socket(io_context_);
+			
+		// Setup socket
+		asio::ip::tcp::acceptor acceptor(io_context_, {address_, port_});
 
-			std::cout << "Listening on port " << address_.to_string() << ":" << port_ << "\n";
+		std::cout << "Listening on " << address_.to_string() << ":" << port_ << "\n";
 
-			// Start listening loop
-			eventLoop(&acceptor);
+		// Start listening loop
+		eventLoop(acceptor);
 
-			io_context_.run();
-		}
-		catch (const std::exception& e)
-		{
-			std::cerr << "Error: " << e.what() << std::endl;
-			throw e;
-		}
+		io_context_.run();
 	}
 }

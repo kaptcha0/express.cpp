@@ -33,6 +33,8 @@ namespace express {
 			// Set header (Will override existing header with same name)
 			void setHeader(std::string, std::string);
 
+			void setHeader(std::string, int);
+
 			// Adds data to stream
 			void send(const std::string);
 
