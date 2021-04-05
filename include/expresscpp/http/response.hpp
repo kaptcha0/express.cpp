@@ -35,7 +35,7 @@ namespace express {
 
 			void setHeader(std::string, int);
 
-			// Adds data to stream
+			// Sets stream data
 			void send(const std::string);
 
 			// Sends data from file

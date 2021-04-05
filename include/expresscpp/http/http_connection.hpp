@@ -2,6 +2,7 @@
 #define HTTP_CONNECTION_HPP
 
 #include <array>
+#include "expresscpp/http/types.hpp"
 #include "expresscpp/commons/pch.hpp"
 #include "expresscpp/http/request.hpp"
 #include "expresscpp/http/http_io.hpp"
@@ -25,17 +26,22 @@ namespace express {
 			// Raw data from read
 			std::string rawData_;
 
+			std::multimap<std::string, http::handler>* handlerMap_;
+
 			// Handles reading data
 			void readRequest();
 
 			// Handles parsing requests
 			void processRequest();
 
+			// Finds relevent handlers
+			void callHandlers(request&, response&);
+
 			// Sends the request to the client
 			void writeRequest(request*, response*);
 
 		public:
-			http_connection(asio::ip::tcp::socket&&);
+			http_connection(asio::ip::tcp::socket&&, std::multimap<std::string, http::handler>*);
 
 			// Starts all ops.
 			void start();

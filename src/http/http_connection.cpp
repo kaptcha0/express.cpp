@@ -2,8 +2,8 @@
 
 namespace express {
 	namespace http {
-		http_connection::http_connection(asio::ip::tcp::socket&& sock)
-			:socket_(std::move(sock))
+		http_connection::http_connection(asio::ip::tcp::socket&& sock, std::multimap<std::string, http::handler>* handlers)
+			:socket_(std::move(sock)), handlerMap_(std::move(handlers))
 		{	}
 
 		void http_connection::start() {
@@ -35,6 +35,36 @@ namespace express {
 			processRequest();
 		}
 
+		void http_connection::callHandlers(request& req, response& res)
+		{
+			auto h = handlerMap_->equal_range(req.path);
+			bool called = false;
+
+			if (h.first == h.second)
+			{
+				res.status(405);
+			}
+
+			for (auto it = h.first; it != h.second; ++it)
+			{
+				handler& handle = it->second;
+				
+				if (handle.method == req.requestMethod)
+				{
+					handle.handle(req, res);
+					called = true;
+				}	
+			}
+
+			if (!called)
+			{
+				res.status(404);
+				res.send("Cannot " + static_cast<std::string>(req.requestMethod) + " on '" + req.path + "'");
+			}
+
+
+		}
+
 		void http_connection::processRequest()
 		{
 			auto data = http_io::deserialize(rawData_);
@@ -46,7 +76,7 @@ namespace express {
 			request req(req_);
 			response res(req.reqVersion);
 
-			res.send("Hello 123");
+			callHandlers(req, res);
 
 			writeRequest(&req, &res);
 		}

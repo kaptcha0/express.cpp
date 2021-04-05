@@ -17,12 +17,17 @@ namespace express {
 
 			if (!ec)
 			{
-				auto conn = std::make_shared<http::http_connection>(std::move(socket_));
+				auto conn = std::make_shared<http::http_connection>(std::move(socket_), std::move(&handlers_));
 				conn->start();
 			}
 
 			this->eventLoop(acc);
 		});
+	}
+
+	void HttpServer::get(std::string path, http::RequestHandler handler)
+	{
+		handlers_.emplace(path, http::handler{ http::method::GET, handler});
 	}
 
 	void HttpServer::listen()
@@ -32,11 +37,20 @@ namespace express {
 		// Setup socket
 		asio::ip::tcp::acceptor acceptor(io_context_, {address_, port_});
 
-		std::cout << "Listening on " << address_.to_string() << ":" << port_ << "\n";
-
 		// Start listening loop
 		eventLoop(acceptor);
 
+		std::cout << "Listening on " << address_.to_string() << ":" << port_ << "\n";
+
+		std::thread t([this]() {
+			std::cin.get();
+			io_context_.stop();
+			std::cout << "Terminated server\n";
+		});
+
+		t.detach();
+		
 		io_context_.run();
+
 	}
 }

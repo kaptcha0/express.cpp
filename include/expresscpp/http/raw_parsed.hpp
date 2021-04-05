@@ -19,7 +19,7 @@ namespace express {
 
 			version() = default;
 
-			constexpr version(float version)
+			version(float version)
 			{
 				if (version == 0.9f)
 					version_ = HTTP_0_9;
@@ -73,7 +73,12 @@ namespace express {
 				}
 			}
 
-		private:
+			inline bool operator==(const version& other)
+			{
+				return other.version_ == version_;
+			}
+
+		protected:
 			value version_;
 		};
 
@@ -259,7 +264,12 @@ namespace express {
 				}
 			}
 
-		private:
+			inline bool operator==(const status& other)
+			{
+				return other.status_ == status_;
+			}
+
+		protected:
 			value status_;
 		};
 
@@ -326,8 +336,13 @@ namespace express {
 					return "INVALID REQUEST METHOD";
 				};
 			}
+			
+			inline bool operator==(const method& other)
+			{
+				return other.method_ == method_;
+			}
 
-		private:
+		protected:
 			value method_;
 		};
 

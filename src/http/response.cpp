@@ -82,8 +82,8 @@ namespace express {
 
 			if (readStream)
 			{
-				std::string file;
-				readStream >> file;
+				std::string file(	(std::istreambuf_iterator<char>(readStream)),
+									(std::istreambuf_iterator<char>()));
 
 				status(status::Accepted);
 

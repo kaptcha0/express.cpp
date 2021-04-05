@@ -4,6 +4,7 @@
 #include "expresscpp/http/query.hpp"
 #include "expresscpp/commons/pch.hpp"
 #include "expresscpp/http/headers.hpp"
+#include "expresscpp/http/cookies.hpp"
 #include "expresscpp/http/raw_parsed.hpp"
 
 namespace express {
@@ -24,6 +25,7 @@ namespace express {
 		public:
 			method requestMethod;
 			http::headers headers;
+			http::cookies cookes;
 			std::string path;
 			std::string body;
 			query queries;
