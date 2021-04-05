@@ -28,7 +28,7 @@ namespace express {
 			response(version);
 
 			// Set status of response
-			void status(uint16_t);
+			void statusCode(uint16_t);
 			
 			// Set header (Will override existing header with same name)
 			void setHeader(std::string, std::string);
