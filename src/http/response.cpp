@@ -17,7 +17,7 @@ namespace express {
 			return raw_response{head, headers, data};
 		}
 
-		void response::status(uint16_t status)
+		void response::statusCode(uint16_t status)
 		{
 			statusCode = static_cast<http::status>(status);
 		}
@@ -85,7 +85,7 @@ namespace express {
 				std::string file(	(std::istreambuf_iterator<char>(readStream)),
 									(std::istreambuf_iterator<char>()));
 
-				status(status::Accepted);
+				statusCode(status::Accepted);
 
 				body.str(file);
 				setHeader("Content-Type", getContentType(&filename));

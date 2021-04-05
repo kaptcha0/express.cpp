@@ -42,7 +42,7 @@ namespace express {
 
 			if (h.first == h.second)
 			{
-				res.status(405);
+				res.statusCode(405);
 			}
 
 			for (auto it = h.first; it != h.second; ++it)
@@ -58,7 +58,7 @@ namespace express {
 
 			if (!called)
 			{
-				res.status(404);
+				res.statusCode(404);
 				res.send("Cannot " + static_cast<std::string>(req.requestMethod) + " on '" + req.path + "'");
 			}
 
