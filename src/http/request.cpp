@@ -2,8 +2,8 @@
 
 namespace express {
 	namespace http {
-		request::request(raw_request& request)
-			:raw(&request)
+		request::request(raw_request& request, asio::ip::address addr)
+			:raw(&request), address(addr)
 		{
 			parseRequest();
 		}

@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.18)
 project(ExpressDotCpp CXX)
-set(CMAKE_CXX_STANDARD 20)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 ## Submodules ##
 find_package(Git QUIET)
@@ -20,6 +23,7 @@ endif()
 
 ## Express.cpp ##
 set(library_name "expresscpp")
+
 add_library(${library_name} STATIC 
 	src/http/core.cpp
 	src/http/request.cpp

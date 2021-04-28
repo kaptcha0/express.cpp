@@ -7,6 +7,7 @@ namespace express {
 		{	}
 
 		void http_connection::start() {
+			commons::Timer t("http_connection::start", true);
 			readRequest();
 		}
 
@@ -26,8 +27,6 @@ namespace express {
 
 			rawData_ = buf.data();
 
-			std::cout << "Read " << ec.value() << ": " << ec.message() << "\n";
-
 			if (rawData_.compare("") == 0)
 				return;
 
@@ -37,31 +36,100 @@ namespace express {
 
 		void http_connection::callHandlers(request& req, response& res)
 		{
-			auto h = handlerMap_->equal_range(req.path);
+			// Not most optimal way; will refactor later
+			auto getValid = [req](std::string& originalPath, std::multimap<std::string, http::handler>* handlers) {
+				commons::Timer t("http_connection::calHandlers::getValid", true);
+
+				std::vector<http::handler*> valid;
+
+				for (auto& it : *handlers)
+				{
+					const std::string& path = it.first;
+					express::http::handler& handle = it.second;
+					
+					// Looks to see if all queries are there
+					bool add = true;
+
+					// If the request path does not match the handler path
+					if (path.compare(originalPath) != 0)
+					{
+						// Look for wildcard '*'
+						size_t wildcard = path.find('*');
+
+						// If wildcard is not found, continue the search
+						if (wildcard == std::string::npos)
+							goto QUERIES;
+
+						// Check if root of the handler is equal to the root request path
+						std::string root = path.substr(0, wildcard);
+
+						if (originalPath.find(root) == std::string::npos)
+							goto QUERIES;
+							
+						// Look for query format '{key}'
+						QUERIES: {
+							size_t pos = path.find('{');
+							size_t endPos = path.find('}');
+
+							root = path.substr(0, pos);
+
+							if (originalPath.find(root) == std::string::npos)
+								continue;
+
+							// Find all query strings
+							while (pos != std::string::npos && endPos != std::string::npos)
+							{
+								std::string query = path.substr(pos + 1, endPos);
+
+								if (size_t danglingBracket = query.find('}'); danglingBracket != std::string::npos)
+								{
+									query = query.substr(0, danglingBracket);
+								}
+
+								if (!req.queries.exists(query.c_str()))
+								{
+									continue;
+								}
+
+								// Get the next occurrence from the current position
+								pos = path.find('{', pos + 1);
+								endPos = path.find('}', endPos);
+							}
+						}
+
+					}
+
+					
+					valid.push_back(&handle);
+				}
+
+				return valid;
+			};
+
+			std::vector<http::handler*> h = getValid(req.path, handlerMap_);
+			
 			bool called = false;
 
-			if (h.first == h.second)
+			if (h.empty())
 			{
-				res.statusCode(405);
+				res.setStatus(405);
+				return;
 			}
 
-			for (auto it = h.first; it != h.second; ++it)
+			for (auto handle : h)
 			{
-				handler& handle = it->second;
-				
-				if (handle.method == req.requestMethod)
+				if (handle->method == req.requestMethod || handle->method == method::ALL)
 				{
-					handle.handle(req, res);
+					handle->handle(req, res);
 					called = true;
 				}	
 			}
 
 			if (!called)
 			{
-				res.statusCode(404);
+				res.setStatus(404);
 				res.send("Cannot " + static_cast<std::string>(req.requestMethod) + " on '" + req.path + "'");
 			}
-
 
 		}
 
@@ -73,7 +141,12 @@ namespace express {
 				return;
 			
 			req_ = data.value();
-			request req(req_);
+			request req(req_, socket_.remote_endpoint().address());
+
+			// Check if request path has is a wildcard
+			if (req.path.compare("/*") == 0)
+				return;
+
 			response res(req.reqVersion);
 
 			callHandlers(req, res);
@@ -88,10 +161,7 @@ namespace express {
 			std::string sendData = rres.resLine + "\r\n" + static_cast<std::string>(rres.headers) + "\r\n" + rres.body;
 			
 
-			asio::async_write(socket_, asio::buffer(&sendData[0], sendData.size()), [&, self](asio::error_code ec, size_t bytes) {
-				std::cout << "Request from: " << socket_.remote_endpoint(ec).address().to_string() << " " << bytes << "B (" << bytes / 1000 << " KB) transfered\n";
-				std::cout << "Write " << ec.value() << ": " << ec.message() << "\n";
-			});
+			asio::async_write(socket_, asio::buffer(&sendData[0], sendData.size()), [&, self](asio::error_code ec, size_t bytes) {	});
 		}
 	}
 }

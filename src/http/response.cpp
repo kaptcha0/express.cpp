@@ -4,22 +4,29 @@ namespace express {
 	namespace http {
 		response::response(version v)
 			:statusCode(status::OK), resVersion(v)
-		{	}
+		{
+			setHeader("Connection", "close");
+			setHeader("Server", "Express.cpp");
+		}
 
 		raw_response response::construct()
 		{
 			std::string data = body.str();
 
-			setHeader("Connection", "close");
 			setHeader("Content-Length", data.length());
 
 			std::string head = static_cast<std::string>(resVersion) + " " + std::to_string(statusCode) + " " + static_cast<std::string>(statusCode);
 			return raw_response{head, headers, data};
 		}
 
-		void response::statusCode(uint16_t status)
+		void response::setStatus(uint16_t status)
 		{
 			statusCode = static_cast<http::status>(status);
+		}
+
+		void response::setCookie(const char* key, const char* value)
+		{
+			cookies[key] = value;
 		}
 
 		void response::setHeader(std::string key, std::string value)
@@ -52,7 +59,7 @@ namespace express {
 				if (pos == std::string::npos)
 					return "INVALID";
 
-				const std::string ext = name->substr(pos + 1, name->length());
+				const std::string ext = name->substr(pos, name->length());
 
 				if (iequals(ext, ".htm"))  return "text/html";
 				if (iequals(ext, ".html")) return "text/html";
@@ -78,14 +85,13 @@ namespace express {
 				return "application/text";
 			};
 
-			std::ifstream readStream(filename);
+			std::ifstream ifs(filename, std::ios::in | std::ios::binary);
 
-			if (readStream)
+			if (ifs)
 			{
-				std::string file(	(std::istreambuf_iterator<char>(readStream)),
-									(std::istreambuf_iterator<char>()));
+				std::string file((std::istreambuf_iterator<char>(ifs)), {});
 
-				statusCode(status::Accepted);
+				setStatus(status::Accepted);
 
 				body.str(file);
 				setHeader("Content-Type", getContentType(&filename));

@@ -285,7 +285,8 @@ namespace express {
 				PUT,
 				_DELETE,
 				TRACE,
-				CONNECT
+				CONNECT,
+				ALL = 255
 			};
 
 			method() = default;
@@ -337,7 +338,12 @@ namespace express {
 				};
 			}
 			
-			inline bool operator==(const method& other)
+			inline bool operator==(const method::value& other) const
+			{
+				return other == method_;
+			}
+
+			inline bool operator==(const method& other) const
 			{
 				return other.method_ == method_;
 			}

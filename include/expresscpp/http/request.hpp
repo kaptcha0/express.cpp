@@ -26,11 +26,12 @@ namespace express {
 			method requestMethod;
 			http::headers headers;
 			http::cookies cookes;
+			asio::ip::address address;
 			std::string path;
 			std::string body;
 			query queries;
 
-			request(raw_request&);
+			request(raw_request&, asio::ip::address);
 		};
 	}
 }

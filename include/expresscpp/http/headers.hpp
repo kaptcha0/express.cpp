@@ -9,7 +9,7 @@ namespace express {
 	namespace http {
 		struct headers
 		{
-		private:
+		protected:
 			std::map<std::string, std::vector<std::string>> headers_;
 		public:
 

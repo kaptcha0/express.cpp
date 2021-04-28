@@ -4,6 +4,7 @@
 #include <fstream>
 #include <streambuf>
 #include "expresscpp/commons/pch.hpp"
+#include "expresscpp/http/cookies.hpp"
 #include "expresscpp/http/headers.hpp"
 #include "expresscpp/http/raw_parsed.hpp"
 
@@ -22,13 +23,18 @@ namespace express {
 
 		public:
 			status statusCode;
+			const char* clientIP;
+			http::cookies cookies;
 			std::ostringstream body;
 			http::headers headers;
 
 			response(version);
 
 			// Set status of response
-			void statusCode(uint16_t);
+			void setStatus(uint16_t);
+
+			// Set cookies
+			void setCookie(const char*, const char*);
 			
 			// Set header (Will override existing header with same name)
 			void setHeader(std::string, std::string);
